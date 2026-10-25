@@ -1,6 +1,31 @@
 @import "tailwindcss";
 
 /*
+  SIZING STANDARDS (researched, v3 round 5). Every size on the site follows these rules:
+  - Tap/click targets: at least 44x44px (WCAG 2.5.5, Apple 44pt; WCAG 2.5.8 AA floor is 24px;
+    Material suggests 48dp). Tailwind: min-h-11 / size-11. Neighbouring targets keep 8px+ between them (gap-2).
+  - Text: body 16px (text-base) with line-height 1.5; secondary text 14px (text-sm); captions and labels never
+    below 12px (text-xs). Headings use line-height 1.1 to 1.3. Paragraph width 45 to 75 characters (max-w-xl = 36rem).
+  - Spacing: 4px/8px grid (Tailwind steps 1, 2, 3, 4, 6, 8, 12...). Card padding 16px, gaps 16px, page gutter 20px
+    on phones and 32px from 640px. Section padding: 48px to 96px, set by .section-y below.
+  - Layout: header 64px, page container max 1280px (max-w-7xl). Nothing may look stretched: form columns max 448px,
+    form cards max 576px, two-column form/auth layouts max 1024px (max-w-5xl), long text max 576px,
+    cards 280 to 330px wide and about 3:4 tall (4 per row on laptops, 2 on tablets, 1 on phones).
+  - Images: cards 4:3, banners 16:9 or full-bleed with a dark overlay, avatars 1:1; photos are 600 to 1600px wide.
+  - Inputs 48px tall (.field), buttons 44px tall (.btn-*), pills 44px tall.
+
+  CONVENTIONS (researched, round 7):
+  - Full-height: ONLY a page-top hero gets a tall minimum, written as min-height (never height) with svh units
+    (stable on phones; dvh jumps when the address bar moves) and a cap (e.g. 56rem) so it is not huge on tall
+    monitors. Every other section is sized by its content + .section-y. Forms are NEVER stretched to the screen.
+  - Forms: one column, labels above fields, field width about 400px (card max 448px, auth card max 896px),
+    side-by-side fields only for short pairs and never below 768px. (Single column forms finish about 15s faster.)
+  - Responsive: mobile first; breakpoints follow the content (Tailwind sm 640, md 768, lg 1024, xl 1280);
+    headings use fluid clamp() sizes; section padding grows 48px -> 96px; test 360, 768, 1024, 1280 and 1600px.
+  - Cards: sized by aspect ratio (3:4 portrait on laptops, 4:5 on tablets, 5:4 on phones), not by the screen height.
+*/
+
+/*
   Tailwind v4 is CSS-first: every design token lives in @theme and becomes a
   utility automatically (bg-paper, text-ink, font-display, animate-rise ...).
   No tailwind.config.js is needed. Components use these semantic names instead
@@ -114,6 +139,46 @@
     /* HOVER/ANIMATION CHANGE: fields darken their border on hover and, on focus, swap the
        default outline for a pine border plus a soft 4px pine ring that fades in (150ms). */
     @apply mt-2 block w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink transition duration-150 placeholder:text-muted/70 hover:border-ink/30 focus-visible:border-pine focus-visible:ring-4 focus-visible:ring-pine/15 focus-visible:outline-none;
+  }
+
+  /* UI CHANGE: shared heading + label styles so every section looks the same (consistency).
+     .section-title = the h2 used on every home/about section.
+     .eyebrow = the small pill above a heading; on dark sections add `text-signal`. */
+  .section-title {
+    @apply font-display font-extrabold tracking-tight text-balance stretch-wide;
+    /* FLUID TYPE: grows smoothly from 24px (phones) to 32px (desktop); no jumps at breakpoints. */
+    font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+  }
+
+  /* FLUID TYPE: the big page title (h1). Grows smoothly from 36px (phones) to 60px (wide screens). */
+  .display-title {
+    @apply font-display leading-[1.1] font-extrabold tracking-tight text-balance stretch-wide;
+    font-size: clamp(2.25rem, 1.25rem + 3.6vw, 3.75rem);
+  }
+  .eyebrow {
+    @apply mb-3 inline-flex items-center rounded-full border border-signal/50 bg-signal/10 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-alert uppercase;
+  }
+
+  /* SIZING: standard vertical padding for every full-width section. It scales with the screen height
+     between 48px (small laptops, phones) and 96px (tall monitors). svh (not dvh) so it does not jump when a
+     phone address bar slides away. */
+  .section-y {
+    padding-block: clamp(3rem, 8svh, 6rem);
+  }
+
+  /* SIZING: round icon-style button with a 44x44px hit area (cart +/-, remove). */
+  .tap-target {
+    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-well;
+  }
+
+  /* SIZING: stand-alone text link with a 44px tall hit area ("See all products", "Forgot password?"). */
+  .link-action {
+    @apply inline-flex min-h-11 items-center text-sm font-semibold underline decoration-signal decoration-2 underline-offset-4 transition-colors hover:text-pine hover:decoration-pine;
+  }
+
+  /* SIZING: small uppercase label above a form field (12px = the minimum text size). */
+  .field-label {
+    @apply text-xs font-semibold tracking-wider text-muted uppercase;
   }
 
   /* The shop's signature shape: a hang tag with a punched hole.

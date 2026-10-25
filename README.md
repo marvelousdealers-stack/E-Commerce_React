@@ -1,16 +1,37 @@
-# React + Vite
+# Mercato (React + Vite + Tailwind CSS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small online shop that sells electronics, jewelry and clothing. Products come from https://fakestoreapi.com/products.
 
-Currently, two official plugins are available:
+## Run it
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+npm install
+npm run dev
+```
 
-## React Compiler
+## Where things are
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+  main.jsx                 starts the app and wraps it in the providers below
+  App.jsx                  the list of pages (routes)
+  index.css                Tailwind + the shared styles (buttons, fields, section spacing, sizing rules)
+  layout/RootLayout.jsx    header + page + footer
+  context/
+    ProductContext.jsx     loads the products (API first, backup file if the API fails)
+    CartContext.jsx        the cart: add, change quantity, remove, clear (saved in the browser)
+  data/products.json       BACKUP copy of the API response (see below)
+  components/common/       Header, Footer, ProductsTab (grid), ProductCard
+  pages/                   Home, Shop, ProductDetails, Cart, About, Contact, Login, Signup
+  utility/Animations.js    the three entrance animations
+```
 
-## Expanding the ESLint configuration
+## Backup product data (when the API is down)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The API is unpredictable. If it fails, the site shows the products saved in `src/data/products.json`.
+
+1. Open https://fakestoreapi.com/products in the browser.
+2. Copy the whole response.
+3. Paste it into `src/data/products.json`, replacing the `[]`.
+
+If the file is still `[]` and the API fails, the site shows the "We couldn't load the products" message with a Try Again button.

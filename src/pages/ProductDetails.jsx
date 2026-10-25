@@ -1,17 +1,21 @@
 import { useContext } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
+import { CartContext } from '../context/CartContext'
 
 
 const ProductDetails = () => {
   const { id } = useParams()
   const { products, loading, error, getProducts } = useContext(ProductContext)
   const product = products.find((item) => String(item.id) === id)
+  // CART: addToCart adds this product; inCart is its cart entry (undefined if not added yet).
+  const { items, addToCart } = useContext(CartContext)
+  const inCart = items.find((item) => item.id === product?.id)
 
   const backLink = (
     <Link
       to="/shop"
-      className="inline-block text-sm font-semibold underline decoration-line decoration-2 underline-offset-4 transition duration-200 hover:decoration-signal motion-safe:hover:-translate-x-1" /* HOVER CHANGE: link nudges 4px left (toward "back") */
+      className="inline-flex min-h-11 items-center text-sm font-semibold underline decoration-line decoration-2 underline-offset-4 transition duration-200 hover:decoration-signal motion-safe:hover:-translate-x-1" /* HOVER CHANGE: link nudges 4px left (toward "back") */
     >
       Back to shop
     </Link>
@@ -22,7 +26,7 @@ const ProductDetails = () => {
       <div className="page-container py-10 lg:py-8">
         <div role="status" aria-live="polite" className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           <p className="sr-only">Loading product</p>
-          <div className="aspect-square w-full rounded-3xl bg-well motion-safe:animate-pulse lg:max-w-[min(100%,calc(100dvh-11rem),36rem)] lg:justify-self-center" /* TAILWIND CHANGE: skeleton is square and capped like the real image */ />
+          <div className="aspect-square w-full rounded-3xl bg-well motion-safe:animate-pulse lg:max-w-[min(100%,calc(100svh-11rem),36rem)] lg:justify-self-center" /* TAILWIND CHANGE: skeleton is square and capped like the real image */ />
           <div className="space-y-4">
             <div className="h-10 w-3/4 rounded-lg bg-well motion-safe:animate-pulse" />
             <div className="h-5 w-1/4 rounded-lg bg-well motion-safe:animate-pulse" />
@@ -41,7 +45,7 @@ const ProductDetails = () => {
           <p className="mt-2 text-sm text-alert">{error}</p>
           <button
             onClick={getProducts}
-            className="mt-6 rounded-full bg-alert px-5 py-2.5 text-sm font-semibold text-paper transition duration-200 hover:bg-alert/85 active:scale-95 motion-safe:hover:-translate-y-0.5" /* HOVER CHANGE: lift on hover, press on click */
+            className="mt-6 rounded-full bg-alert px-5 py-3 text-sm font-semibold text-paper transition duration-200 hover:bg-alert/85 active:scale-95 motion-safe:hover:-translate-y-0.5" /* HOVER CHANGE: lift on hover, press on click */
           >
             Try Again
           </button>
@@ -69,16 +73,16 @@ const ProductDetails = () => {
     // ANIMATION CHANGE: the product page fades in and slides up 14px once on load
     <div className="page-container py-6 motion-safe:animate-rise lg:py-6">
       {/* TAILWIND CHANGE: mb-8 -> mb-4 */}
-      <div className="mb-4">{backLink}</div>
+      <div className="mb-2">{backLink}</div>
       {/* TAILWIND CHANGE: gap-12/lg:gap-20 -> gap-8/lg:gap-12, lg:items-center to centre text beside the image */}
       <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
       
         {/* TAILWIND CHANGE (fixes the stretched image): the previous version fixed only the HEIGHT,
             so the width followed the column and the well became a wide rectangle. It now stays
             square on laptops (lg:aspect-square) and its width is capped to whichever is smallest:
-            the column (100%), the visible height (100dvh minus header, back link and padding
+            the column (100%), the visible height (100svh minus header, back link and padding
             = 11rem) or 36rem. lg:justify-self-center centres it in its column. */}
-        <div className="group aspect-square w-full overflow-hidden rounded-3xl bg-well lg:max-w-[min(100%,calc(100dvh-11rem),36rem)] lg:justify-self-center">
+        <div className="group aspect-square w-full overflow-hidden rounded-3xl bg-well lg:max-w-[min(100%,calc(100svh-11rem),36rem)] lg:justify-self-center">
           <img
             src={product.image}
             alt={product.title}
@@ -87,7 +91,7 @@ const ProductDetails = () => {
         </div>
 
         <div className="flex flex-col items-start">
-          <p className="text-sm font-medium text-muted capitalize">{product.category}</p>
+          <p className="text-sm font-medium text-muted first-letter:uppercase">{product.category.replace('jewelery', 'jewelry') /* FIX: API spells it "jewelery" */}</p>
           <h1 className="mt-2 font-display text-2xl leading-tight font-extrabold tracking-tight text-balance stretch-wide sm:text-3xl">
             {product.title}
           </h1>
@@ -104,7 +108,22 @@ const ProductDetails = () => {
             {product.description}
           </p>
      
-          <button type="button" className="btn-primary mt-6">Add to Cart</button>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <button type="button" onClick={() => addToCart(product)} className="btn-primary">
+              {inCart ? `In cart (${inCart.quantity}) · Add another` : 'Add to Cart'}
+            </button>
+            {inCart && (
+              <Link to="/cart" className="link-action">
+                View cart
+              </Link>
+            )}
+          </div>
+          {/* UI CHANGE: small reassurance list next to the buy button (trust signals) */}
+          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+            <li>Free delivery over $50</li>
+            <li>30-day returns</li>
+            <li>Secure payment</li>
+          </ul>
         </div>
       </div>
     </div>
