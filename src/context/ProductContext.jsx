@@ -6,6 +6,14 @@ import savedProducts from "../data/products.json";
 
 export const ProductContext = createContext();
 
+// The saved products use the LOCAL copies of the pictures (public/products/), because the picture
+// links in the saved data point to the same server as the API and would break too.
+// Each file name is taken from the end of the original link (see README.md to download them).
+const localProducts = savedProducts.map((product) => ({
+  ...product,
+  image: "/products/" + product.image.split("/").pop(),
+}));
+
 const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,10 +31,10 @@ const ProductProvider = ({ children }) => {
       }
       setProducts(await response.json());
     } catch (e) {
-      if (savedProducts.length > 0) {
+      if (localProducts.length > 0) {
         // The API failed, so use the saved copy.
         console.warn("API failed, showing the products saved in src/data/products.json");
-        setProducts(savedProducts);
+        setProducts(localProducts);
       } else {
         // Nothing saved either: show the error message with the Try Again button.
         setError(e.message);

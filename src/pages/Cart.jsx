@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
+import ProductImage from '../components/common/ProductImage'
 
 // PLACEHOLDER shop rules: free delivery from $50, otherwise a flat $5. Change them here.
 const freeDeliveryFrom = 50
@@ -55,7 +56,7 @@ const Cart = () => {
               {items.map((item) => (
                 <li key={item.id} className="flex gap-4 rounded-2xl border border-line bg-white p-4">
                   <Link to={`/shop/${item.id}`} className="block size-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 sm:size-24">
-                    <img src={item.image} alt="" className="size-full object-contain p-2 mix-blend-multiply" />
+                    <ProductImage src={item.image} alt="" className="size-full object-contain p-2 mix-blend-multiply" />
                   </Link>
 
                   <div className="flex min-w-0 flex-1 flex-col">

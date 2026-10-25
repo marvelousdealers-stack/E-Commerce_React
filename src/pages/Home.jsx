@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useContext } from 'react'
 import { motion } from 'framer-motion'
 import ProductsTab from '../components/common/ProductsTab'
+import ProductImage from '../components/common/ProductImage'
 import { ProductContext } from '../context/ProductContext'
 import { SlideUp, SlideLeft, SlideRight } from '../utility/Animations'
 
@@ -146,7 +147,7 @@ const Home = () => {
               >
                 {product ? (
                   <Link to={`/shop/${product.id}`} className="block size-full">
-                    <img
+                    <ProductImage
                       src={product.image}
                       alt={product.title}
                       className="size-full object-contain p-6 pt-12 pb-12 mix-blend-multiply transition-transform duration-500 ease-out motion-safe:group-hover:scale-105"

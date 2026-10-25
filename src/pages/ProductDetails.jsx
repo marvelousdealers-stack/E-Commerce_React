@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ProductContext } from '../context/ProductContext'
 import { CartContext } from '../context/CartContext'
+import ProductImage from '../components/common/ProductImage'
 
 
 const ProductDetails = () => {
@@ -83,7 +84,7 @@ const ProductDetails = () => {
             the column (100%), the visible height (100svh minus header, back link and padding
             = 11rem) or 36rem. lg:justify-self-center centres it in its column. */}
         <div className="group aspect-square w-full overflow-hidden rounded-3xl bg-well lg:max-w-[min(100%,calc(100svh-11rem),36rem)] lg:justify-self-center">
-          <img
+          <ProductImage
             src={product.image}
             alt={product.title}
             className="size-full object-contain p-8 mix-blend-multiply transition-transform duration-700 ease-out motion-safe:group-hover:scale-105" /* HOVER CHANGE: slow 5% zoom when the image box is hovered */

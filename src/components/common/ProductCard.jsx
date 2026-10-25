@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ProductImage from "./ProductImage";
 
 // CART: onAddToCart is passed in by ProductsTab; quantityInCart is how many of this product are in the cart.
 const ProductCard = ({ id, title, price, category, image, rating, onAddToCart, quantityInCart = 0 }) => {
@@ -15,7 +16,7 @@ const ProductCard = ({ id, title, price, category, image, rating, onAddToCart, q
         className="relative block aspect-[4/3] overflow-hidden rounded-xl bg-gray-50"
       >
         {image && (
-          <img
+          <ProductImage
             src={image}
             alt=""
             loading="lazy"
