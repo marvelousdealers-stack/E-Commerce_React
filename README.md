@@ -24,10 +24,22 @@ src/
   components/common/       Header, Footer, ProductsTab (grid), ProductCard, ProductImage
   pages/                   Home, Shop, ProductDetails, Cart, About, Contact, Login, Signup
   utility/Animations.js    the three entrance animations
+public/images/             site photos (.webp), review avatars, empty-cart illustration
 public/products/           backup copies of the product pictures (filled by npm run download-images)
 public/placeholder.svg     shown when a picture cannot load
 scripts/                   one-time helper that downloads the pictures
 ```
+
+## Pictures (all local, no outside links while the site runs)
+
+- `public/images/*.webp`: the site photos (hero, categories, banners, login panels).
+  `avatar-*.webp` (review profile pictures) and `empty-cart.webp` (empty cart illustration) are drawn illustrations that come with the project.
+  The photos are free Unsplash photos that you download **once**: run `npm run download-images` (needs internet and Node 18+).
+  Until you do, photo sections show a plain green background.
+- `public/products/`: copies of the product pictures (see below).
+- `public/placeholder.svg`: shown when a picture cannot load at all.
+
+To use another site photo: put a `.webp` file in `public/images/` and change its path in the page (each page has an `images` object at the top).
 
 ## Backup product data (when the API is down)
 
@@ -36,8 +48,8 @@ The product pictures live on the same server as the API, so they need a local co
 
 1. Open https://fakestoreapi.com/products in the browser, copy the whole response and paste it into
    `src/data/products.json`, replacing the `[]`. It must stay valid JSON.
-2. While the API is working, run `npm run download-images`. It saves every picture into `public/products/`
-   (it uses the file name from the end of each picture link, so you do not need to edit the JSON).
+2. Run `npm run download-images` while the internet works. Besides the site photos it saves every product picture
+   into `public/products/` (it uses the file name from the end of each picture link, so you do not need to edit the JSON).
 
 How it works:
 

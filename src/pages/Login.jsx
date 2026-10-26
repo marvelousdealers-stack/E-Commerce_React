@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-// IMAGE: free Unsplash photo for the left panel; paste another URL here to change it.
+// IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const sideImage =
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=70'
+  '/images/shop-interior.webp'
 
 const Login = () => {
   const [submitted, setSubmitted] = useState(false)

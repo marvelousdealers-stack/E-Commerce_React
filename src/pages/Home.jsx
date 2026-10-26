@@ -20,14 +20,14 @@ import { SlideUp, SlideLeft, SlideRight } from '../utility/Animations'
 
 // IMAGES: free Unsplash photos, loaded by URL. To change one, paste another URL here.
 const images = {
-  hero: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70',
-  electronics: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=700&q=70',
-  jewelry: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=700&q=70',
-  men: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=700&q=70',
-  women: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=700&q=70',
-  promo: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=70',
-  story: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1000&q=70',
-  cta: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=70',
+  hero: '/images/shop-interior.webp',
+  electronics: '/images/electronics.webp',
+  jewelry: '/images/jewelry.webp',
+  men: '/images/mens-clothing.webp',
+  women: '/images/womens-clothing.webp',
+  promo: '/images/electronics.webp',
+  story: '/images/clothes-rack.webp',
+  cta: '/images/watch.webp',
 }
 
 // One entry per product type. "value" must match the category text the API sends
@@ -53,11 +53,11 @@ const reasons = [
   { title: 'Plain answers', text: 'Questions about an item go straight to us through the contact page.' },
 ]
 
-// PLACEHOLDER reviews: replace with real customer reviews before launch.
+// PLACEHOLDER reviews and avatars (drawn illustrations in public/images/): replace with real customers before launch.
 const reviews = [
-  { name: 'Amna R.', item: 'Electronics', text: 'The price was right on the card, so I compared three headphones in a minute and ordered the same day.' },
-  { name: 'Daniel K.', item: 'Clothing', text: 'Easy to browse by category. The jacket matched the photos and arrived quickly.' },
-  { name: 'Sofia M.', item: 'Jewelry', text: 'Bought a gift here. Simple checkout, nice packaging and no surprises on the price.' },
+  { name: 'Amna R.', item: 'Electronics', avatar: '/images/avatar-amna.webp', text: 'The price was right on the card, so I compared three headphones in a minute and ordered the same day.' },
+  { name: 'Daniel K.', item: 'Clothing', avatar: '/images/avatar-daniel.webp', text: 'Easy to browse by category. The jacket matched the photos and arrived quickly.' },
+  { name: 'Sofia M.', item: 'Jewelry', avatar: '/images/avatar-sofia.webp', text: 'Bought a gift here. Simple checkout, nice packaging and no surprises on the price.' },
 ]
 
 const Home = () => {
@@ -396,9 +396,19 @@ const Home = () => {
               >
                 <p aria-label="5 out of 5 stars" className="text-amber-500">★★★★★</p>
                 <blockquote className="mt-3 text-base text-pretty">“{review.text}”</blockquote>
-                <figcaption className="mt-auto pt-5 text-sm">
-                  <span className="font-semibold">{review.name}</span>
-                  <span className="text-muted"> · {review.item}</span>
+                <figcaption className="mt-auto flex items-center gap-3 pt-5 text-sm">
+                  <img
+                    src={review.avatar}
+                    alt=""
+                    width="48"
+                    height="48"
+                    loading="lazy"
+                    className="size-12 shrink-0 rounded-full object-cover ring-2 ring-well"
+                  />
+                  <span>
+                    <span className="block font-semibold">{review.name}</span>
+                    <span className="block text-muted">Bought {review.item.toLowerCase()}</span>
+                  </span>
                 </figcaption>
               </motion.figure>
             ))}

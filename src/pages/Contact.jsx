@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-// IMAGE: free Unsplash photo behind the banner; paste another URL here to change it.
+// IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const heroImage =
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70'
+  '/images/shop-interior.webp'
 
 // UI CHANGE (v3): the contact page follows the "contact" inspiration image:
 // dark banner with quick contact options -> form card + info cards -> FAQ -> trust strip.

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-// IMAGE: free Unsplash photo for the left panel; paste another URL here to change it.
+// IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const sideImage =
-  'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1000&q=70'
+  '/images/womens-clothing.webp'
 
 // Dummy page: there is no account system yet. The form only validates in the
 // browser, and preventDefault stops the page from reloading on submit.
