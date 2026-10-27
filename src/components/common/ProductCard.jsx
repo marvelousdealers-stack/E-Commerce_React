@@ -53,17 +53,18 @@ const ProductCard = ({ id, title, price, category, image, rating, onAddToCart, q
         </div>
 
         <div className="mt-3 flex gap-2">
+          {/* FIX: whitespace-nowrap keeps labels on one line in narrower cards (e.g. the cart page). */}
           <button
             type="button"
             onClick={onAddToCart}
-            className="btn-primary flex-1 px-3"
+            className="btn-primary flex-1 px-3 whitespace-nowrap"
           >
             {quantityInCart > 0 ? `In cart (${quantityInCart})` : "Add to Cart"}
           </button>
 
           <Link
             to={detailsPath}
-            className="btn-ghost flex-1 px-3"
+            className="btn-ghost flex-1 px-3 whitespace-nowrap"
           >
             More Details
           </Link>

@@ -55,43 +55,46 @@ const Cart = () => {
 
       <div className="page-container py-6">
         {items.length === 0 ? (
-          <div className="mx-auto max-w-5xl">
-            {/* EMPTY CART: illustration + message + category shortcuts, then popular products to add. */}
-            <div className="grid items-center gap-6 rounded-3xl border border-line bg-white p-6 sm:p-8 lg:grid-cols-2 lg:gap-10">
-              <img
-                src="/images/empty-cart.webp"
-                alt=""
-                width="800"
-                height="600"
-                className="mx-auto w-full max-w-sm lg:max-w-none"
-              />
-              <div>
-                <p className="eyebrow">Cart</p>
-                <h2 className="section-title">Your cart is empty</h2>
-                <p className="mt-3 max-w-md text-base text-muted">
-                  Nothing here yet. Pick a category to start, or add one of the popular products below.
-                </p>
+          <>
+            {/* EMPTY CART banner: stays in the centred 1024px box. */}
+            <div className="mx-auto max-w-5xl">
+              <div className="grid items-center gap-6 rounded-3xl border border-line bg-white p-6 sm:p-8 lg:grid-cols-2 lg:gap-10">
+                <img
+                  src="/images/empty-cart.webp"
+                  alt=""
+                  width="800"
+                  height="600"
+                  className="mx-auto w-full max-w-sm lg:max-w-none"
+                />
+                <div>
+                  <p className="eyebrow">Cart</p>
+                  <h2 className="section-title">Your cart is empty</h2>
+                  <p className="mt-3 max-w-md text-base text-muted">
+                    Nothing here yet. Pick a category to start, or add one of the popular products below.
+                  </p>
 
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {shortcuts.map((shortcut) => (
-                    <Link
-                      key={shortcut.value}
-                      to={`/shop?category=${shortcut.value}`}
-                      className="inline-flex min-h-11 items-center rounded-full border border-line bg-paper px-4 text-sm font-semibold transition duration-200 hover:border-ink/40"
-                    >
-                      {shortcut.label}
-                    </Link>
-                  ))}
-                </div>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {shortcuts.map((shortcut) => (
+                      <Link
+                        key={shortcut.value}
+                        to={`/shop?category=${shortcut.value}`}
+                        className="inline-flex min-h-11 items-center rounded-full border border-line bg-paper px-4 text-sm font-semibold transition duration-200 hover:border-ink/40"
+                      >
+                        {shortcut.label}
+                      </Link>
+                    ))}
+                  </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-                  <Link to="/shop" className="btn-primary">Browse the shop</Link>
-                  <span className="text-sm text-muted">Free delivery over $50 · 30-day returns</span>
+                  <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <Link to="/shop" className="btn-primary">Browse the shop</Link>
+                    <span className="text-sm text-muted">Free delivery over $50 · 30-day returns</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <section className="mt-10">
+            {/* POPULAR PRODUCTS: full page width (same as the Shop page) so 4 cards fit in one row. */}
+            <section className="mt-10 flex flex-col">
               <div className="mb-6">
                 <p className="eyebrow">Popular right now</p>
                 <h2 className="section-title">Start with a favourite</h2>
@@ -104,7 +107,7 @@ const Cart = () => {
                 placeholders={4}
               />
             </section>
-          </div>
+          </>
         ) : (
           <div className="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-[1fr_21rem]">
             <div>

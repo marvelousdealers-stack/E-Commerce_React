@@ -2,9 +2,10 @@ import { useContext } from 'react';
 import ProductCard from './ProductCard';
 import { CartContext } from '../../context/CartContext';
 
-const gridClass = "grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-10 motion-safe:animate-rise"
+// Default grid (shop page). Other pages can pass their own via the gridClass prop.
+const defaultGrid = "grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-10 motion-safe:animate-rise"
 
-const ProductsTab = ({ products, loading, error, getProducts, placeholders = 8 }) => {
+const ProductsTab = ({ products, loading, error, getProducts, placeholders = 8, gridClass = defaultGrid }) => {
     // CART: items = what is in the cart, addToCart = adds one more of a product.
     const { items, addToCart } = useContext(CartContext);
 
