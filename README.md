@@ -1,16 +1,61 @@
-# React + Vite
+# Mercato (React + Vite + Tailwind CSS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small online shop that sells electronics, jewelry and clothing. Products come from https://fakestoreapi.com/products.
 
-Currently, two official plugins are available:
+## Run it
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+npm install
+npm run dev
+```
 
-## React Compiler
+## Where things are
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+  main.jsx                 starts the app and wraps it in the providers below
+  App.jsx                  the list of pages (routes)
+  index.css                Tailwind + the shared styles (buttons, fields, section spacing, sizing rules)
+  layout/RootLayout.jsx    header + page + footer
+  context/
+    ProductContext.jsx     loads the products (API first, backup file if the API fails)
+    CartContext.jsx        the cart: add, change quantity, remove, clear (saved in the browser)
+  data/products.json       BACKUP copy of the API response (see below)
+  components/common/       Header, Footer, ProductsTab (grid), ProductCard, ProductImage
+  pages/                   Home, Shop, ProductDetails, Cart, About, Contact, Login, Signup
+  utility/Animations.js    the three entrance animations
+public/images/             site photos (.webp), review avatars, empty-cart illustration
+public/products/           backup copies of the product pictures (filled by npm run download-images)
+public/placeholder.svg     shown when a picture cannot load
+scripts/                   one-time helper that downloads the pictures
+```
 
-## Expanding the ESLint configuration
+## Pictures (all local, no outside links while the site runs)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `public/images/*.webp`: the site photos (hero, categories, banners, login panels).
+  `avatar-*.webp` (review profile pictures) and `empty-cart.webp` (empty cart illustration) are drawn illustrations that come with the project.
+  The photos are free Unsplash photos that you download **once**: run `npm run download-images` (needs internet and Node 18+).
+  Until you do, photo sections show a plain green background.
+- `public/products/`: copies of the product pictures (see below).
+- `public/placeholder.svg`: shown when a picture cannot load at all.
+
+To use another site photo: put a `.webp` file in `public/images/` and change its path in the page (each page has an `images` object at the top).
+
+## Backup product data (when the API is down)
+
+The API is unpredictable. If it fails, the site shows the products saved in `src/data/products.json`.
+The product pictures live on the same server as the API, so they need a local copy too.
+
+1. Open https://fakestoreapi.com/products in the browser, copy the whole response and paste it into
+   `src/data/products.json`, replacing the `[]`. It must stay valid JSON.
+2. Run `npm run download-images` while the internet works. Besides the site photos it saves every product picture
+   into `public/products/` (it uses the file name from the end of each picture link, so you do not need to edit the JSON).
+
+How it works:
+
+- API works: the site uses the API data and the pictures from the internet, as usual.
+- API fails: the site uses `products.json` and the pictures in `public/products/`.
+- A single picture cannot load (even when the API works): `ProductImage.jsx` tries the local copy in `public/products/`, then shows `public/placeholder.svg` ("Image unavailable") instead of a broken-image icon.
+- `products.json` is still `[]` and the API fails: the site shows "We couldn't load the products" with a Try Again button.
+
+`scripts/download-images.mjs` is only a one-time helper and is not part of the website. You can delete it afterwards.

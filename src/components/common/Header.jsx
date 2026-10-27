@@ -1,8 +1,25 @@
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { CartContext } from "../../context/CartContext";
 
+// UI CHANGE: links are NavLink, which tells us which page is open (isActive).
+// The open page keeps its orange underline and darker text, so visitors always know where they are.
+// The underline utilities are split between the two states so they never fight each other.
+const navLinkBase =
+  "relative inline-flex min-h-11 items-center font-medium transition-colors after:absolute after:inset-x-0 after:bottom-2 after:h-0.5 after:origin-left after:bg-signal after:transition-transform after:duration-300";
 
-const navLinkClass =
-  "relative py-1 font-medium text-muted transition-colors hover:text-ink after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:bg-signal after:transition-transform after:duration-300 hover:after:scale-x-100";
+const navLinkClass = ({ isActive }) =>
+  `${navLinkBase} ${
+    isActive
+      ? "text-ink after:scale-x-100"
+      : "text-muted hover:text-ink after:scale-x-0 hover:after:scale-x-100"
+  }`;
+
+// RESPONSIVE: the phone/tablet menu uses bigger rows (48px) and a soft background for the open page.
+const mobileLinkClass = ({ isActive }) =>
+  `flex min-h-12 items-center rounded-lg px-3 text-base font-medium transition-colors ${
+    isActive ? "bg-well text-ink" : "text-muted hover:bg-well hover:text-ink"
+  }`;
 
 const links = [
   { to: "/", label: "Home" },
@@ -12,48 +29,55 @@ const links = [
 ];
 
 const Header = () => {
+  const { totalItems } = useContext(CartContext);
+  // RESPONSIVE: below 1024px the links move into a menu that opens with the button (one true/false value).
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur">
-     
-      <div className="page-container flex flex-wrap items-center gap-x-4 gap-y-3 py-4 sm:gap-x-8 lg:h-16 lg:flex-nowrap lg:py-0">
+    <header className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur">
+      {/* The bar is always 64px tall (h-16) on every screen, so nothing wraps into extra rows on phones. */}
+      <div className="page-container flex h-16 items-center gap-4">
+        {/* RENAME: Techno -> Mercato (a market that sells more than tech). The small mark is the same tag shape as the favicon. */}
         <Link
           to="/"
-          className="order-1 font-display text-pine-soft text-2xl font-extrabold tracking-tight stretch-wide transition-opacity hover:opacity-75"
+          onClick={closeMenu}
+          className="flex items-center gap-2 font-display text-pine-soft text-2xl font-extrabold tracking-tight stretch-wide transition-opacity hover:opacity-75"
         >
-          Techno
+          <svg viewBox="0 0 32 32" aria-hidden="true" className="size-7">
+            <rect width="32" height="32" rx="8" fill="currentColor" />
+            <path d="M8 9h11l6 7-6 7H8z" fill="#FF6B3D" />
+            <circle cx="12.5" cy="16" r="2" fill="#F6F8F3" />
+          </svg>
+          Mercato
         </Link>
 
-        <nav
-          aria-label="Main"
-          className="order-3 flex w-full items-center gap-6 text-sm sm:order-2 sm:ml-auto sm:w-auto sm:gap-8"
-        >
+        {/* Desktop links (hidden below 1024px) */}
+        <nav aria-label="Main" className="hidden items-center gap-8 text-sm lg:ml-auto lg:flex">
           {links.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={navLinkClass}
-            >
+            <NavLink key={link.to} to={link.to} end={link.to === "/"} className={navLinkClass}>
               {link.label}
-            </Link>
+            </NavLink>
           ))}
         </nav>
 
-        <div className="order-2 ml-auto flex items-center gap-2 sm:order-3 sm:ml-0 sm:gap-3">
+        <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <Link
             to="/login"
-            className="px-2 py-2 text-sm font-semibold underline-offset-4 transition-colors hover:text-pine hover:underline"
+            className="hidden min-h-11 items-center px-3 text-sm font-semibold underline-offset-4 transition-colors hover:text-pine hover:underline lg:inline-flex"
           >
             Log in
           </Link>
           <Link
             to="/signup"
-            className="rounded-full border border-ink/25 px-4 py-2 text-sm font-semibold transition duration-200 hover:border-ink active:scale-95 motion-safe:hover:-translate-y-0.5"
+            className="hidden min-h-11 items-center rounded-full border border-ink/25 px-5 text-sm font-semibold transition duration-200 hover:border-ink active:scale-95 motion-safe:hover:-translate-y-0.5 lg:inline-flex"
           >
             Sign up
           </Link>
           <Link
             to="/cart"
-            className="group inline-flex items-center gap-2 rounded-full bg-pine px-3 py-2 text-sm font-semibold text-paper transition duration-200 hover:bg-pine-soft active:scale-95 motion-safe:hover:-translate-y-0.5 sm:px-4"
+            onClick={closeMenu}
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-pine px-4 text-sm font-semibold text-paper transition duration-200 hover:bg-pine-soft active:scale-95 motion-safe:hover:-translate-y-0.5 sm:px-5"
           >
             <svg
               viewBox="0 0 24 24"
@@ -69,9 +93,47 @@ const Header = () => {
               <path d="M9 8V7a3 3 0 0 1 6 0v1" />
             </svg>
             <span className="sr-only sm:not-sr-only">Cart</span>
+            {/* CART: shows how many items are in the cart */}
+            {totalItems > 0 && (
+              <span className="flex min-w-5 items-center justify-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">
+                {totalItems}
+                <span className="sr-only"> items in cart</span>
+              </span>
+            )}
           </Link>
+
+          {/* Menu button (only below 1024px) */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="inline-flex size-11 items-center justify-center rounded-full border border-ink/25 transition-colors hover:border-ink lg:hidden"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="size-5">
+              {menuOpen ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* Phone/tablet menu */}
+      {menuOpen && (
+        <nav id="mobile-menu" aria-label="Main" className="border-t border-line bg-paper lg:hidden">
+          <div className="page-container flex flex-col gap-1 py-3">
+            {links.map((link) => (
+              <NavLink key={link.to} to={link.to} end={link.to === "/"} onClick={closeMenu} className={mobileLinkClass}>
+                {link.label}
+              </NavLink>
+            ))}
+            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-line pt-3">
+              <Link to="/login" onClick={closeMenu} className="btn-ghost">Log in</Link>
+              <Link to="/signup" onClick={closeMenu} className="btn-signal">Sign up</Link>
+            </div>
+          </div>
+        </nav>
+      )}
     </header>
   );
 };

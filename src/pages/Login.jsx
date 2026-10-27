@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+// IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
+const sideImage =
+  '/images/shop-interior.webp'
+
 const Login = () => {
   const [submitted, setSubmitted] = useState(false)
+  // "Show / Hide" button on the password field (one true/false value).
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -10,42 +16,97 @@ const Login = () => {
   }
 
   return (
-    // TAILWIND CHANGE: wrapper fits one laptop screen (pt-12 pb-24 -> py-10, lg centred, min-h = 100dvh - 65px header)
-    // ANIMATION CHANGE: the whole page fades in and slides up 14px once on load (motion-safe:animate-rise)
-    <div className="page-container py-10 motion-safe:animate-rise lg:grid lg:min-h-[calc(100dvh-65px)] lg:content-center lg:py-8">
-      {/* TAILWIND CHANGE: gap-12/lg:gap-20 -> gap-8/lg:gap-12 */}
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-12 lg:items-center">
-        <div>
-          <h1 className="font-display text-4xl leading-none font-extrabold tracking-tight text-balance stretch-wide sm:text-5xl xl:text-6xl">
-            Log in
-          </h1>
-          <p className="mt-4 max-w-md text-base text-pretty text-muted">
-            Welcome back. This is a demo page, so nothing you type is sent or saved.
-          </p>
+    // FORM SIZING (round 7): the card is NOT stretched to the screen height. It is as tall as its form, with
+    // comfortable space around it. Width: 448px on phones/tablets (max-w-md) and 896px on laptops (max-w-4xl),
+    // which makes the form column about 370px wide (fields should be about 400px or less). Photo panel = lg and up.
+    <div className="page-container py-8 motion-safe:animate-rise lg:py-12">
+      <div className="mx-auto grid w-full max-w-md overflow-hidden rounded-3xl border border-line bg-white shadow-xl shadow-ink/10 lg:max-w-4xl lg:grid-cols-2">
+        <div className="relative isolate hidden flex-col justify-between p-8 text-paper lg:flex xl:p-10">
+          <img src={sideImage} alt="" className="absolute inset-0 -z-20 size-full object-cover" />
+          <div className="absolute inset-0 -z-10 bg-linear-to-t from-pine via-pine/80 to-pine/60" />
+          <div className="flex items-center justify-between gap-4">
+            <p className="font-display text-2xl font-extrabold tracking-tight stretch-wide">Mercato</p>
+            <Link
+              to="/"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-paper/30 bg-paper/10 px-4 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-paper/20"
+            >
+              <span aria-hidden="true">&lsaquo;</span> Back
+            </Link>
+          </div>
+          <div>
+            <h2 className="max-w-sm font-display text-3xl leading-[1.15] font-extrabold tracking-tight text-balance stretch-wide xl:text-4xl">
+              Your orders and favourites, all in one place.
+            </h2>
+            <p className="mt-4 max-w-sm text-base text-paper/80">
+              Log in to follow your orders and pick up where you left off.
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="max-w-md space-y-4" /* TAILWIND CHANGE: space-y-6 -> space-y-4 */>
-          <div>
-            <label htmlFor="email" className="text-sm font-semibold">Email</label>
-            <input id="email" name="email" type="email" autoComplete="email" required className="field" />
-          </div>
-          <div>
-            <label htmlFor="password" className="text-sm font-semibold">Password</label>
-            <input id="password" name="password" type="password" autoComplete="current-password" required className="field" />
-          </div>
-          <button type="submit" className="btn-primary w-full">Log in</button>
-          {submitted && (
-            <p role="status" className="rounded-lg bg-well px-4 py-3 text-sm text-muted">
-              Demo only: no account system is connected yet.
-            </p>
-          )}
-          <p className="text-sm text-muted">
-            New to Techno?{' '}
-            <Link to="/signup" className="font-semibold text-ink underline decoration-signal decoration-2 underline-offset-4">
-              Create an account
+        <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+          <div className="mx-auto w-full max-w-md">
+            <Link to="/" className="-ml-2 inline-flex min-h-11 items-center gap-1 px-2 text-sm font-semibold text-muted transition-colors hover:text-ink lg:hidden">
+              <span aria-hidden="true">&lsaquo;</span> Back
             </Link>
-          </p>
-        </form>
+
+            <p className="eyebrow mt-2 lg:mt-0">Log in</p>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight stretch-wide">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-sm text-muted">Log in to continue. Demo only: nothing you type is saved.</p>
+
+            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="email" className="field-label">Email</label>
+                <input id="email" name="email" type="email" autoComplete="email" placeholder="Enter your email address" required className="field" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="field-label">Password</label>
+                  <Link to="/contact" className="link-action text-alert">Forgot password?</Link>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    required
+                    className="field mt-0 pr-16"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-pressed={showPassword}
+                    className="absolute top-1/2 right-1 inline-flex min-h-11 -translate-y-1/2 items-center px-3 text-sm font-semibold text-muted transition-colors hover:text-ink"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" className="btn-signal w-full">Log in &rarr;</button>
+              {submitted && (
+                <p role="status" className="rounded-lg bg-well px-4 py-3 text-sm text-muted">
+                  Demo only: no account system is connected yet.
+                </p>
+              )}
+            </form>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 border-t border-line pt-2 text-sm text-muted">
+              <p>
+                New to Mercato?{' '}
+                <Link to="/signup" className="font-semibold text-alert underline-offset-4 hover:underline">
+                  Create an account
+                </Link>
+              </p>
+              <Link to="/shop" className="link-action text-alert">
+                Continue as guest
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

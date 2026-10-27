@@ -11,7 +11,7 @@ const RootLayout = () => {
   }, [pathname])
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-svh flex-col">
       <Header />
       <main className="flex-1">
         <Outlet />
