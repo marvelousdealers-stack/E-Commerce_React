@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import * as notify from '../utility/notify'
 
 // IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const sideImage =
@@ -8,13 +9,21 @@ const sideImage =
 // Dummy page: there is no account system yet. The form only validates in the
 // browser, and preventDefault stops the page from reloading on submit.
 const Signup = () => {
-  const [submitted, setSubmitted] = useState(false)
   // "Show / Hide" button on the password field (one true/false value).
   const [showPassword, setShowPassword] = useState(false)
 
+  // UX CHANGE (SweetAlert2): toast instead of a grey note under the button. The form is cleared afterwards,
+  // so a password does not stay on screen after a demo submit.
   const handleSubmit = (event) => {
     event.preventDefault()
-    setSubmitted(true)
+    event.currentTarget.reset()
+    setShowPassword(false)
+    notify.toast({
+      icon: 'info',
+      title: 'Demo only',
+      text: 'No account was created because there is no account system yet.',
+      timer: 5000,
+    })
   }
 
   return (
@@ -58,7 +67,7 @@ const Signup = () => {
             <p className="mt-2 text-sm text-muted">Demo only: nothing you type is saved.</p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-              <div className="space-y-4">
+              <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
                 <div>
                   <label htmlFor="name" className="field-label">Name</label>
                   <input id="name" name="name" type="text" autoComplete="name" placeholder="Your full name" required className="field" />
@@ -93,11 +102,6 @@ const Signup = () => {
               </div>
 
               <button type="submit" className="btn-signal w-full">Sign up &rarr;</button>
-              {submitted && (
-                <p role="status" className="rounded-lg bg-well px-4 py-3 text-sm text-muted">
-                  Demo only: no account was created.
-                </p>
-              )}
             </form>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 border-t border-line pt-2 text-sm text-muted">

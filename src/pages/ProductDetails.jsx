@@ -97,9 +97,27 @@ const ProductDetails = () => {
             {product.title}
           </h1>
           {product.rating && (
-            <p className="mt-3 text-sm text-muted">
-              Rated {product.rating.rate} out of 5 ({product.rating.count} reviews)
-            </p>
+            // UI CHANGE: the rating is now shown as stars (a grey row with an amber row on top, cut to the rating's width)
+            // next to the number and the review count. The stars are one image for screen readers, with the full sentence.
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+              <span
+                role="img"
+                aria-label={`Rated ${product.rating.rate} out of 5`}
+                className="relative inline-block text-lg leading-none tracking-wider text-line"
+              >
+                ★★★★★
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-0 left-0 overflow-hidden whitespace-nowrap text-amber-500"
+                  style={{ width: `${(Math.min(5, Math.max(0, product.rating.rate)) / 5) * 100}%` }}
+                >
+                  ★★★★★
+                </span>
+              </span>
+              <span>
+                <span className="font-semibold text-ink">{product.rating.rate}</span> ({product.rating.count} reviews)
+              </span>
+            </div>
           )}
    
           <span className="price-tag mt-4 [--tag-hole:var(--color-paper)]">

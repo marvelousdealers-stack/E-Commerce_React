@@ -67,6 +67,16 @@
       transform: none;
     }
   }
+
+  /* LOADING SKELETONS: a soft highlight sweeps across the placeholder. It only animates `transform`
+     (compositor-friendly, no layout or paint work), and .skeleton below switches it off for "reduce motion". */
+  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+
+  @keyframes shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
 }
 
 /* Archivo ships a width axis; this widens headings without loading another font. */
@@ -121,7 +131,8 @@
      motion-safe: so people with "reduce motion" turned on only get the colour change. */
   .btn-primary,
   .btn-signal,
-  .btn-ghost {
+  .btn-ghost,
+  .btn-alert {
     @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition duration-200 hover:shadow-md hover:shadow-ink/15 active:scale-[0.97] motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0;
   }
   .btn-primary {
@@ -132,6 +143,19 @@
   }
   .btn-ghost {
     @apply border border-ink/25 text-ink hover:border-ink;
+  }
+  /* NEW: red button for destructive pop-ups (e.g. "Yes, clear my cart"). Same size and feel as the other buttons. */
+  .btn-alert {
+    @apply bg-alert text-paper hover:bg-alert/85;
+  }
+
+  /* NEW: loading placeholder block (see --animate-shimmer in @theme). Give it a size with utilities (h-4 w-1/3 ...). */
+  .skeleton {
+    @apply relative overflow-hidden bg-well;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/60 to-transparent motion-safe:animate-shimmer;
   }
 
   /* Text inputs, selects and textareas. */
@@ -195,3 +219,32 @@
   }
 }
 
+
+/*
+  SWEETALERT2 THEME (toasts and pop-ups, see src/utility/notify.js).
+  SweetAlert2 v11 is themed with CSS variables, so the pop-ups use the same tokens as the rest of the site.
+  `:root:root` (two selectors) is on purpose: SweetAlert2 injects its own `:root { ... }` block at run time,
+  after this file, and this makes ours win without !important.
+*/
+:root:root {
+  --swal2-backdrop: oklch(0.243 0.025 174 / 0.55);
+  --swal2-background: #fff;
+  --swal2-color: var(--color-ink);
+  --swal2-border-radius: 1.5rem;
+  --swal2-width: 28em;
+  --swal2-padding: 0 0 1.5rem;
+  --swal2-title-padding: 1.75rem 1.5rem 0;
+  --swal2-html-container-padding: 0.75rem 1.5rem 0.25rem;
+  --swal2-outline: 0 0 0 4px color-mix(in oklab, var(--color-pine) 20%, transparent);
+  --swal2-close-button-color: var(--color-muted);
+  --swal2-timer-progress-bar-background: var(--color-signal);
+  --swal2-toast-border: 1px solid var(--color-line);
+  --swal2-toast-box-shadow:
+    0 12px 32px -12px oklch(0.243 0.025 174 / 0.35), 0 2px 6px oklch(0.243 0.025 174 / 0.12);
+}
+
+/* The spinner that replaces the "Place order" button while the demo order is "processing": brand orange instead of
+   SweetAlert2's default blue. (Two class selectors so it beats SweetAlert2's single-class rule.) */
+.swal2-popup .swal2-loader {
+  border-color: var(--color-signal) transparent var(--color-signal) transparent;
+}

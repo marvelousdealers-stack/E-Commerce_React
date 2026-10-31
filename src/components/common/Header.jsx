@@ -1,5 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { CartContext } from "../../context/CartContext";
 
 // UI CHANGE: links are NavLink, which tells us which page is open (isActive).
@@ -8,10 +9,12 @@ import { CartContext } from "../../context/CartContext";
 const navLinkBase =
   "relative inline-flex min-h-11 items-center font-medium transition-colors after:absolute after:inset-x-0 after:bottom-2 after:h-0.5 after:origin-left after:bg-signal after:transition-transform after:duration-300";
 
+// ANIMATION CHANGE: the orange underline of the open page is now ONE shared element (framer-motion layoutId) that glides
+// from the old link to the new one. Links that are not open still get the CSS hover underline.
 const navLinkClass = ({ isActive }) =>
   `${navLinkBase} ${
     isActive
-      ? "text-ink after:scale-x-100"
+      ? "text-ink after:scale-x-0"
       : "text-muted hover:text-ink after:scale-x-0 hover:after:scale-x-100"
   }`;
 
@@ -33,9 +36,31 @@ const Header = () => {
   // RESPONSIVE: below 1024px the links move into a menu that opens with the button (one true/false value).
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
+  // UI CHANGE: the header gets a soft shadow once the page has scrolled, so it reads as floating above the content.
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 8);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // UX: Escape closes the phone menu (expected keyboard behaviour for a disclosure menu).
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur">
+    <header
+      className={`sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur transition-shadow duration-300 ${
+        scrolled ? "shadow-md shadow-ink/10" : ""
+      }`}
+    >
       {/* The bar is always 64px tall (h-16) on every screen, so nothing wraps into extra rows on phones. */}
       <div className="page-container flex h-16 items-center gap-4">
         {/* RENAME: Techno -> Mercato (a market that sells more than tech). The small mark is the same tag shape as the favicon. */}
@@ -56,7 +81,19 @@ const Header = () => {
         <nav aria-label="Main" className="hidden items-center gap-8 text-sm lg:ml-auto lg:flex">
           {links.map((link) => (
             <NavLink key={link.to} to={link.to} end={link.to === "/"} className={navLinkClass}>
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      aria-hidden="true"
+                      className="absolute inset-x-0 bottom-2 h-0.5 bg-signal"
+                      transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                    />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -95,10 +132,17 @@ const Header = () => {
             <span className="sr-only sm:not-sr-only">Cart</span>
             {/* CART: shows how many items are in the cart */}
             {totalItems > 0 && (
-              <span className="flex min-w-5 items-center justify-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink">
+              // ANIMATION CHANGE: key={totalItems} restarts this tiny "pop" every time the number changes (item added/removed).
+              <motion.span
+                key={totalItems}
+                initial={{ scale: 1.5 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                className="flex min-w-5 items-center justify-center rounded-full bg-signal px-1.5 text-xs font-bold text-ink"
+              >
                 {totalItems}
                 <span className="sr-only"> items in cart</span>
-              </span>
+              </motion.span>
             )}
           </Link>
 
@@ -118,22 +162,32 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Phone/tablet menu */}
-      {menuOpen && (
-        <nav id="mobile-menu" aria-label="Main" className="border-t border-line bg-paper lg:hidden">
-          <div className="page-container flex flex-col gap-1 py-3">
-            {links.map((link) => (
-              <NavLink key={link.to} to={link.to} end={link.to === "/"} onClick={closeMenu} className={mobileLinkClass}>
-                {link.label}
-              </NavLink>
-            ))}
-            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-line pt-3">
-              <Link to="/login" onClick={closeMenu} className="btn-ghost">Log in</Link>
-              <Link to="/signup" onClick={closeMenu} className="btn-signal">Sign up</Link>
+      {/* Phone/tablet menu. ANIMATION CHANGE: fades and slides down 8px (opacity + transform only, 180ms). */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.nav
+            id="mobile-menu"
+            aria-label="Main"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="border-t border-line bg-paper lg:hidden"
+          >
+            <div className="page-container flex flex-col gap-1 py-3">
+              {links.map((link) => (
+                <NavLink key={link.to} to={link.to} end={link.to === "/"} onClick={closeMenu} className={mobileLinkClass}>
+                  {link.label}
+                </NavLink>
+              ))}
+              <div className="mt-2 grid grid-cols-2 gap-2 border-t border-line pt-3">
+                <Link to="/login" onClick={closeMenu} className="btn-ghost">Log in</Link>
+                <Link to="/signup" onClick={closeMenu} className="btn-signal">Sign up</Link>
+              </div>
             </div>
-          </div>
-        </nav>
-      )}
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

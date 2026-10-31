@@ -1,9 +1,12 @@
-import { useContext, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CartContext } from '../context/CartContext'
 import { ProductContext } from '../context/ProductContext'
 import ProductImage from '../components/common/ProductImage'
 import ProductsTab from '../components/common/ProductsTab'
+import CountUp from '../components/reactbits/CountUp'
+import * as notify from '../utility/notify'
 
 // PLACEHOLDER shop rules: free delivery from $50, otherwise a flat $5. Change them here.
 const freeDeliveryFrom = 50
@@ -22,8 +25,7 @@ const shortcuts = [
 const Cart = () => {
   const { items, totalItems, subtotal, changeQuantity, removeFromCart, clearCart } = useContext(CartContext)
   const { products, loading, error, getProducts } = useContext(ProductContext)
-  // Shows a short message after pressing Checkout (checkout is a demo).
-  const [checkedOut, setCheckedOut] = useState(false)
+  const navigate = useNavigate()
 
   const delivery = subtotal >= freeDeliveryFrom ? 0 : deliveryFee
   const total = subtotal + delivery
@@ -34,6 +36,53 @@ const Cart = () => {
   let countText = `${totalItems} items`
   if (totalItems === 0) countText = 'Nothing here yet.'
   if (totalItems === 1) countText = '1 item'
+
+  // UX CHANGE (SweetAlert2): "Clear cart" now asks first, because it removes every item at once.
+  const handleClear = async () => {
+    const confirmed = await notify.confirm({
+      icon: 'warning',
+      title: 'Clear your cart?',
+      text: `This removes all ${totalItems} ${totalItems === 1 ? 'item' : 'items'} from your cart.`,
+      confirmText: 'Yes, clear it',
+      cancelText: 'Keep my items',
+      tone: 'danger',
+    })
+    if (confirmed) {
+      clearCart()
+      notify.toast({ icon: 'success', title: 'Your cart is empty' })
+    }
+  }
+
+  // UX CHANGE (SweetAlert2): Checkout is now a short, honest flow instead of a grey note under the button:
+  // 1) summary + "Place order" (with a spinner on the button while the demo "processes"), 2) success message.
+  // Nothing is sent anywhere: the checkout is still a demo and the messages say so.
+  const handleCheckout = async () => {
+    const itemsText = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`
+    const confirmed = await notify.confirm({
+      icon: 'question',
+      title: 'Place your order?',
+      // Only numbers we format ourselves go into this HTML (never product names), so it is safe.
+      html: `<p>${itemsText} · delivery ${delivery === 0 ? 'free' : money(delivery)}</p>
+             <p class="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink">${money(total)}</p>
+             <p class="mt-3 text-sm">Demo checkout: no payment is taken.</p>`,
+      confirmText: 'Place order',
+      cancelText: 'Back to cart',
+      tone: 'signal',
+      showLoaderOnConfirm: true,
+      preConfirm: () => new Promise((resolve) => setTimeout(resolve, 900)),
+      allowOutsideClick: () => !notify.isBusy(),
+    })
+    if (!confirmed) return
+
+    const keepShopping = await notify.notice({
+      icon: 'success',
+      title: 'Order placed',
+      text: 'Thank you! This is a demo, so nothing was charged and no real order was created.',
+      confirmText: 'Continue shopping',
+    })
+    clearCart()
+    if (keepShopping) navigate('/shop')
+  }
 
   // Suggestions for the empty cart: the 4 best rated products.
   const popular = [...products].sort((a, b) => b.rating.rate - a.rating.rate).slice(0, 4)
@@ -111,54 +160,66 @@ const Cart = () => {
         ) : (
           <div className="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-[1fr_21rem]">
             <div>
-              <ul className="space-y-3">
-                {items.map((item) => (
-                  <li key={item.id} className="flex gap-4 rounded-2xl border border-line bg-white p-4">
-                    <Link to={`/shop/${item.id}`} className="block size-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 sm:size-24">
-                      <ProductImage src={item.image} alt="" className="size-full object-contain p-2 mix-blend-multiply" />
-                    </Link>
-
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <Link to={`/shop/${item.id}`} className="line-clamp-2 font-display text-base leading-snug font-semibold transition-colors hover:text-pine">
-                        {item.title}
-                      </Link>
-                      <p className="mt-1 text-sm text-muted">{money(item.price)} each</p>
-
-                      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
-                        <div className="inline-flex items-center rounded-full border border-line">
-                          <button
-                            type="button"
-                            onClick={() => changeQuantity(item.id, -1)}
-                            aria-label={`Remove one ${item.title}`}
-                            className="tap-target text-lg"
-                          >
-                            &minus;
-                          </button>
-                          <span className="min-w-8 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => changeQuantity(item.id, 1)}
-                            aria-label={`Add one more ${item.title}`}
-                            className="tap-target text-lg"
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        <p className="font-display text-lg font-bold tabular-nums">{money(item.price * item.quantity)}</p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeFromCart(item.id)}
-                      aria-label={`Remove ${item.title} from the cart`}
-                      className="tap-target self-start text-xl text-muted hover:text-ink"
+              {/* ANIMATION CHANGE: rows slide in when added and fade out when removed, and the rows below glide up to
+                  close the gap (framer-motion `layout` + AnimatePresence). "relative" is needed by popLayout. */}
+              <ul className="relative grid gap-3">
+                <AnimatePresence initial={false} mode="popLayout">
+                  {items.map((item) => (
+                    <motion.li
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -24, transition: { duration: 0.18 } }}
+                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex gap-4 rounded-2xl border border-line bg-white p-4"
                     >
-                      &times;
-                    </button>
-                  </li>
-                ))}
+                      <Link to={`/shop/${item.id}`} className="block size-20 shrink-0 overflow-hidden rounded-xl bg-gray-50 sm:size-24">
+                        <ProductImage src={item.image} alt="" className="size-full object-contain p-2 mix-blend-multiply" />
+                      </Link>
+
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <Link to={`/shop/${item.id}`} className="line-clamp-2 font-display text-base leading-snug font-semibold transition-colors hover:text-pine">
+                          {item.title}
+                        </Link>
+                        <p className="mt-1 text-sm text-muted">{money(item.price)} each</p>
+
+                        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
+                          <div className="inline-flex items-center rounded-full border border-line">
+                            <button
+                              type="button"
+                              onClick={() => changeQuantity(item.id, -1)}
+                              aria-label={item.quantity === 1 ? `Remove ${item.title} from the cart` : `Remove one ${item.title}`}
+                              className="tap-target text-lg"
+                            >
+                              &minus;
+                            </button>
+                            <span className="min-w-8 text-center text-sm font-semibold tabular-nums" aria-live="polite">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => changeQuantity(item.id, 1)}
+                              aria-label={`Add one more ${item.title}`}
+                              className="tap-target text-lg"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <p className="font-display text-lg font-bold tabular-nums">{money(item.price * item.quantity)}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => removeFromCart(item.id)}
+                        aria-label={`Remove ${item.title} from the cart`}
+                        className="tap-target self-start text-xl text-muted hover:text-ink"
+                      >
+                        &times;
+                      </button>
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
               </ul>
 
               <Link to="/shop" className="link-action mt-3">&larr; Continue shopping</Link>
@@ -189,7 +250,7 @@ const Cart = () => {
               <dl className="mt-5 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-muted">Subtotal</dt>
-                  <dd className="font-semibold tabular-nums">{money(subtotal)}</dd>
+                  <dd className="font-semibold tabular-nums"><CountUp value={subtotal} prefix="$" /></dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted">Delivery</dt>
@@ -197,19 +258,14 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between border-t border-line pt-3 text-base">
                   <dt className="font-semibold">Total</dt>
-                  <dd className="font-display text-xl font-bold tabular-nums">{money(total)}</dd>
+                  <dd className="font-display text-xl font-bold tabular-nums"><CountUp value={total} prefix="$" /></dd>
                 </div>
               </dl>
 
-              <button type="button" onClick={() => setCheckedOut(true)} className="btn-signal mt-5 w-full">
+              <button type="button" onClick={handleCheckout} className="btn-signal mt-5 w-full">
                 Checkout
               </button>
               <p className="mt-3 text-center text-sm text-muted">No account needed to check out</p>
-              {checkedOut && (
-                <p role="status" className="mt-3 rounded-lg bg-well px-3 py-2 text-sm text-muted">
-                  Demo only: checkout is not connected yet.
-                </p>
-              )}
 
               <ul className="mt-4 space-y-1 border-t border-line pt-4 text-sm text-muted">
                 <li>Secure payment</li>
@@ -217,7 +273,7 @@ const Cart = () => {
                 <li>Friendly support if you need help</li>
               </ul>
 
-              <button type="button" onClick={clearCart} className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-muted underline underline-offset-4 transition-colors hover:text-ink">
+              <button type="button" onClick={handleClear} className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-muted underline underline-offset-4 transition-colors hover:text-ink">
                 Clear cart
               </button>
             </aside>

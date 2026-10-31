@@ -24,6 +24,8 @@ src/
   components/common/       Header, Footer, ProductsTab (grid), ProductCard, ProductImage
   pages/                   Home, Shop, ProductDetails, Cart, About, Contact, Login, Signup
   utility/Animations.js    the three entrance animations
+  utility/notify.js        every SweetAlert2 toast and pop-up (cart, checkout, forms) in one place
+  components/reactbits/    React Bits components used by the site (SpotlightCard, Magnet, BlurText, CountUp)
 public/images/             site photos (.webp), review avatars, empty-cart illustration
 public/products/           backup copies of the product pictures (filled by npm run download-images)
 public/placeholder.svg     shown when a picture cannot load
@@ -59,3 +61,31 @@ How it works:
 - `products.json` is still `[]` and the API fails: the site shows "We couldn't load the products" with a Try Again button.
 
 `scripts/download-images.mjs` is only a one-time helper and is not part of the website. You can delete it afterwards.
+
+
+## Animations and notifications (UI polish round)
+
+Run `npm install` once after unpacking: this round adds one package, `sweetalert2`.
+
+**React Bits** (https://reactbits.dev, source is copied into `src/components/reactbits/`, so nothing extra is installed):
+
+| Component | Where | Notes |
+| --- | --- | --- |
+| BlurText (lean version) | hero heading on Home, About, Contact | one reveal per page, plain text for screen readers |
+| Magnet | "Shop now" and "Start shopping" buttons on Home | off on touch screens and with "reduce motion" |
+| SpotlightCard | review cards on Home | cursor-following glow, runs only while the pointer is near |
+| CountUp (lean version) | subtotal and total on the Cart page | counts to the new number when the cart changes |
+
+BlurText and CountUp are trimmed versions: the current React Bits files are 12 to 30 KB each because they ship many effects. These keep only what the site uses and run on framer-motion, which was already installed.
+React Bits is MIT + Commons Clause: fine inside a website or app, but the components themselves may not be resold or repackaged.
+
+**Other animation changes** (all opacity/transform only, and all switched off by "reduce motion" through `MotionConfig` in `main.jsx`):
+header link underline glides between pages, phone menu fades in, cart badge pops on change, product cards rise in with a 40ms stagger,
+cart rows slide in/out, About page sections reveal on scroll, loading placeholders copy the real card and shimmer.
+
+**SweetAlert2** (`src/utility/notify.js`, themed with `--swal2-*` variables at the end of `index.css`):
+
+- Add to cart: toast with a "View cart" button. Remove from cart: toast with "Undo" (the item returns to the same place).
+- Clear cart: confirm dialog. Checkout: summary dialog, then a success dialog (still a demo; the text says so).
+- Login and Sign up: "demo only" toast. Contact form: thank-you dialog; the two "live chat" buttons, which did nothing before, now open a dialog with the e-mail address.
+- If the live API fails and the saved products are used, a toast tells the visitor.

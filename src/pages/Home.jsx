@@ -3,6 +3,9 @@ import { useContext } from 'react'
 import { motion } from 'framer-motion'
 import ProductsTab from '../components/common/ProductsTab'
 import ProductImage from '../components/common/ProductImage'
+import BlurText from '../components/reactbits/BlurText'
+import Magnet from '../components/reactbits/Magnet'
+import SpotlightCard from '../components/reactbits/SpotlightCard'
 import { ProductContext } from '../context/ProductContext'
 import { SlideUp, SlideLeft, SlideRight } from '../utility/Animations'
 
@@ -102,17 +105,11 @@ const Home = () => {
             >
               New season · Free delivery over $50
             </motion.p>
-            <motion.h1
-              variants={SlideUp(0.08)}
-              initial="hidden"
-              animate="visible"
-              className="display-title"
-            >
-              Everything you need, priced plainly.
-            </motion.h1>
+            {/* REACT BITS (BlurText): the headline words fade in out of a blur, one after another (about 0.7s in total). */}
+            <BlurText as="h1" className="display-title" text="Everything you need, priced plainly." startDelay={0.05} />
 
             <motion.p
-              variants={SlideUp(0.16)}
+              variants={SlideUp(0.3)}
               initial="hidden"
               animate="visible"
               className="mt-5 max-w-lg text-base text-pretty text-paper/80 xl:text-lg"
@@ -122,12 +119,15 @@ const Home = () => {
             </motion.p>
 
             <motion.div
-              variants={SlideUp(0.24)}
+              variants={SlideUp(0.4)}
               initial="hidden"
               animate="visible"
               className="mt-6 flex flex-wrap gap-3 lg:mt-7"
             >
-              <Link to="/shop" className="btn-signal">Shop now</Link>
+              {/* REACT BITS (Magnet): the main button leans a few pixels toward the cursor (off on touch screens and with "reduce motion"). */}
+              <Magnet padding={50} magnetStrength={4} maxOffset={10}>
+                <Link to="/shop" className="btn-signal">Shop now</Link>
+              </Magnet>
               <Link to="/about" className="btn-ghost border-paper/40 text-paper hover:border-paper">
                 Our story
               </Link>
@@ -320,7 +320,9 @@ const Home = () => {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <Link to="/shop" className="btn-signal">Start shopping</Link>
+            <Magnet padding={50} magnetStrength={4} maxOffset={10}>
+              <Link to="/shop" className="btn-signal">Start shopping</Link>
+            </Magnet>
           </motion.div>
         </div>
       </section>
@@ -386,31 +388,42 @@ const Home = () => {
 
           <div className="grid gap-4 md:grid-cols-3">
             {reviews.map((review, index) => (
-              <motion.figure
+              <motion.div
                 key={review.name}
                 variants={SlideUp(index * 0.12)}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="flex flex-col rounded-2xl border border-line bg-white p-6 transition duration-300 hover:shadow-lg hover:shadow-ink/10"
               >
-                <p aria-label="5 out of 5 stars" className="text-amber-500">★★★★★</p>
-                <blockquote className="mt-3 text-base text-pretty">“{review.text}”</blockquote>
-                <figcaption className="mt-auto flex items-center gap-3 pt-5 text-sm">
-                  <img
-                    src={review.avatar}
-                    alt=""
-                    width="48"
-                    height="48"
-                    loading="lazy"
-                    className="size-12 shrink-0 rounded-full object-cover ring-2 ring-well"
-                  />
-                  <span>
-                    <span className="block font-semibold">{review.name}</span>
-                    <span className="block text-muted">Bought {review.item.toLowerCase()}</span>
-                  </span>
-                </figcaption>
-              </motion.figure>
+                {/* REACT BITS (SpotlightCard): a soft orange glow follows the cursor across the card and lights its border.
+                    It only runs while the pointer is near the card. */}
+                <SpotlightCard
+                  as="figure"
+                  theme="light"
+                  spotlightColor="var(--color-signal)"
+                  intensity={0.6}
+                  spotlightSize={220}
+                  className="flex h-full cursor-pointer flex-col rounded-2xl p-6"
+                  style={{ '--spotlight-card-shadow': '0 1px 2px oklch(0.243 0.025 174 / 0.06)' }}
+                >
+                  <p aria-label="5 out of 5 stars" className="text-amber-500">★★★★★</p>
+                  <blockquote className="mt-3 text-base text-pretty">“{review.text}”</blockquote>
+                  <figcaption className="mt-auto flex items-center gap-3 pt-5 text-sm">
+                    <img
+                      src={review.avatar}
+                      alt=""
+                      width="48"
+                      height="48"
+                      loading="lazy"
+                      className="size-12 shrink-0 rounded-full object-cover ring-2 ring-well"
+                    />
+                    <span>
+                      <span className="block font-semibold">{review.name}</span>
+                      <span className="block text-muted">Bought {review.item.toLowerCase()}</span>
+                    </span>
+                  </figcaption>
+                </SpotlightCard>
+              </motion.div>
             ))}
           </div>
         </div>

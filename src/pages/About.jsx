@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import BlurText from '../components/reactbits/BlurText'
+import { SlideUp, SlideRight } from '../utility/Animations'
 
 /*
   SIZING (round 7): only the top banner is tall (min-height = one screen minus the 64px header, capped at 44rem).
@@ -70,9 +73,8 @@ const About = () => {
         <div className="absolute inset-0 -z-10 bg-linear-to-r from-pine via-pine/85 to-pine/50" />
         <div className="page-container">
           <p className="eyebrow text-signal">About Mercato</p>
-          <h1 className="max-w-3xl display-title">
-            A shop that shows you the price first.
-          </h1>
+          {/* REACT BITS (BlurText): same headline reveal as the home page. */}
+          <BlurText as="h1" className="block max-w-3xl display-title" text="A shop that shows you the price first." startDelay={0.05} />
           <p className="mt-5 max-w-xl text-base text-pretty text-paper/80 lg:text-lg">
             Mercato is an online shop for electronics, jewelry and clothing. The whole
             catalogue lives in one place, and every product shows its price up front.
@@ -92,7 +94,13 @@ const About = () => {
       {/* 2. HOW WE WORK: heading + intro, then four equal photo cards (one per step). The whole card is one link. */}
       <section className="section-y">
         <div className="page-container">
-          <div className="grid gap-4 lg:grid-cols-2 lg:items-end lg:gap-12">
+          <motion.div
+            variants={SlideRight(0)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid gap-4 lg:grid-cols-2 lg:items-end lg:gap-12"
+          >
             <div>
               <p className="eyebrow">How we work</p>
               <h2 className="section-title">Comparing should take seconds.</h2>
@@ -101,11 +109,17 @@ const About = () => {
               Prices sit at the top of every card and every product page, and product
               details come straight from the catalogue. Here is how shopping works.
             </p>
-          </div>
+          </motion.div>
 
           <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step, index) => (
-              <li key={step.title}>
+              <motion.li
+                key={step.title}
+                variants={SlideUp(index * 0.08)}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 <Link
                   to={step.to}
                   className="group flex aspect-[5/4] w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition duration-300 hover:border-ink/25 hover:shadow-lg hover:shadow-ink/10 motion-safe:hover:-translate-y-1 sm:aspect-[4/5] lg:aspect-[3/4]"
@@ -129,7 +143,7 @@ const About = () => {
                     <p className="mt-1 text-sm text-muted">{step.text}</p>
                   </div>
                 </Link>
-              </li>
+              </motion.li>
             ))}
           </ol>
         </div>
@@ -147,9 +161,15 @@ const About = () => {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <Link
+            {categories.map((category, index) => (
+              <motion.div
                 key={category.value}
+                variants={SlideUp(index * 0.08)}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+              <Link
                 to={`/shop?category=${category.value}`}
                 className="group flex aspect-[5/4] flex-col overflow-hidden rounded-2xl border border-line bg-paper transition duration-300 hover:border-ink/25 hover:shadow-lg hover:shadow-ink/10 motion-safe:hover:-translate-y-1 sm:aspect-[4/5] lg:aspect-[3/4]"
               >
@@ -169,6 +189,7 @@ const About = () => {
                   <p className="mt-1 text-sm text-muted">{category.text}</p>
                 </div>
               </Link>
+              </motion.div>
             ))}
           </div>
         </div>
