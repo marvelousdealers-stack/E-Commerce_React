@@ -1,18 +1,25 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import * as notify from '../utility/notify'
 
 // IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const sideImage =
   '/images/shop-interior.webp'
 
 const Login = () => {
-  const [submitted, setSubmitted] = useState(false)
   // "Show / Hide" button on the password field (one true/false value).
   const [showPassword, setShowPassword] = useState(false)
 
+  // UX CHANGE (SweetAlert2): the grey note under the button is now a toast, so the message is announced to screen readers
+  // and does not push the form around. There is no account system yet, and the toast says so.
   const handleSubmit = (event) => {
     event.preventDefault()
-    setSubmitted(true)
+    notify.toast({
+      icon: 'info',
+      title: 'Demo only',
+      text: 'No account system is connected yet, so nothing was saved.',
+      timer: 5000,
+    })
   }
 
   return (
@@ -87,11 +94,6 @@ const Login = () => {
               </div>
 
               <button type="submit" className="btn-signal w-full">Log in &rarr;</button>
-              {submitted && (
-                <p role="status" className="rounded-lg bg-well px-4 py-3 text-sm text-muted">
-                  Demo only: no account system is connected yet.
-                </p>
-              )}
             </form>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 border-t border-line pt-2 text-sm text-muted">

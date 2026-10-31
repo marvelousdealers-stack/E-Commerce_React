@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from "react";
 // To fill it: open https://fakestoreapi.com/products in the browser, copy the whole response
 // and paste it into src/data/products.json (replace the [] ). It must stay valid JSON.
 import savedProducts from "../data/products.json";
+import * as notify from "../utility/notify";
 
 export const ProductContext = createContext();
 
@@ -35,6 +36,14 @@ const ProductProvider = ({ children }) => {
         // The API failed, so use the saved copy.
         console.warn("API failed, showing the products saved in src/data/products.json");
         setProducts(localProducts);
+        // UX: tell the visitor the list is a saved copy (prices and stock may be out of date).
+        notify.toast({
+          icon: "info",
+          title: "Showing saved products",
+          text: "We couldn’t reach the live catalogue, so prices may be out of date.",
+          timer: 6000,
+          closable: true,
+        });
       } else {
         // Nothing saved either: show the error message with the Try Again button.
         setError(e.message);

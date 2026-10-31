@@ -1,43 +1,43 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const footerLinkClass =
-  'inline-flex min-h-11 items-center underline-offset-4 transition duration-200 hover:text-paper hover:underline focus-visible:outline-paper motion-safe:hover:translate-x-1'
+  "inline-flex min-h-11 items-center underline-offset-4 transition duration-200 hover:text-paper hover:underline focus-visible:outline-paper motion-safe:hover:translate-x-1";
 
 // UI CHANGE: the footer now has 4 link columns (Shop, Categories, Company, Account).
 // Category links open the shop already filtered (/shop?category=...).
 const columns = [
   {
-    title: 'Shop',
+    title: "Shop",
     links: [
-      { to: '/', label: 'Home' },
-      { to: '/shop', label: 'All products' },
-      { to: '/cart', label: 'Cart' },
+      { to: "/", label: "Home" },
+      { to: "/shop", label: "All products" },
+      { to: "/cart", label: "Cart" },
     ],
   },
   {
-    title: 'Categories',
+    title: "Categories",
     links: [
-      { to: '/shop?category=electronics', label: 'Electronics' },
-      { to: '/shop?category=jewelery', label: 'Jewelry' },
-      { to: "/shop?category=men's clothing", label: 'Men’s clothing' },
-      { to: "/shop?category=women's clothing", label: 'Women’s clothing' },
+      { to: "/shop?category=electronics", label: "Electronics" },
+      { to: "/shop?category=jewelery", label: "Jewelry" },
+      { to: "/shop?category=men's clothing", label: "Men’s clothing" },
+      { to: "/shop?category=women's clothing", label: "Women’s clothing" },
     ],
   },
   {
-    title: 'Company',
+    title: "Company",
     links: [
-      { to: '/about', label: 'About' },
-      { to: '/contact', label: 'Contact' },
+      { to: "/about", label: "About" },
+      { to: "/contact", label: "Contact" },
     ],
   },
   {
-    title: 'Account',
+    title: "Account",
     links: [
-      { to: '/login', label: 'Log in' },
-      { to: '/signup', label: 'Sign up' },
+      { to: "/login", label: "Log in" },
+      { to: "/signup", label: "Sign up" },
     ],
   },
-]
+];
 
 const Footer = () => {
   return (
@@ -50,7 +50,8 @@ const Footer = () => {
             Mercato
           </p>
           <p className="mt-3 max-w-xs text-sm text-paper/70">
-            Electronics, jewelry and clothing in one catalogue, with the price shown first.
+            Electronics, jewelry and clothing in one catalogue, with the price
+            shown first.
           </p>
         </div>
 
@@ -61,7 +62,9 @@ const Footer = () => {
               <ul className="mt-2 text-sm text-paper/70">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className={footerLinkClass}>{link.label}</Link>
+                    <Link to={link.to} className={footerLinkClass}>
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -77,7 +80,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

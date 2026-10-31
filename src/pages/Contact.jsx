@@ -1,4 +1,5 @@
-import { useState } from "react";
+import * as notify from "../utility/notify";
+import BlurText from "../components/reactbits/BlurText";
 
 // IMAGE: local webp file in public/images/ (saved by `npm run download-images`).
 const heroImage = "/images/shop-interior.webp";
@@ -65,12 +66,32 @@ const guarantees = [
 ];
 
 const Contact = () => {
-  // Shows a short confirmation after sending (the form is a demo, nothing is sent).
-  const [sent, setSent] = useState(false);
-
-  const handleSubmit = (event) => {
+  // UX CHANGE (SweetAlert2): after sending, a pop-up thanks the visitor by name and the form is cleared.
+  // The form is a demo and nothing is sent, so the pop-up says so.
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSent(true);
+    const form = event.currentTarget; // grab it now: currentTarget is empty after the first await
+    const name = new FormData(form).get("name");
+    form.reset();
+    await notify.notice({
+      icon: "success",
+      title: "Message received",
+      text: `Thanks, ${name}. This is a demo, so your message was not actually sent.`,
+      confirmText: "Done",
+    });
+  };
+
+  // UX FIX: both "live chat" buttons did nothing when pressed. They now explain that chat is not connected
+  // and offer the e-mail address instead.
+  const handleLiveChat = async () => {
+    const email = await notify.notice({
+      icon: "info",
+      title: "Live chat isn’t available yet",
+      text: "Write to us at hello@mercato.example and we will reply within 24 hours.",
+      confirmText: "Email us",
+      cancelText: "Close",
+    });
+    if (email) window.location.href = "mailto:hello@mercato.example";
   };
 
   return (
@@ -87,7 +108,7 @@ const Contact = () => {
         <div className="absolute inset-0 -z-10 bg-linear-to-b from-ink/90 via-pine/85 to-pine/90" />
         <div className="page-container text-center">
           <p className="eyebrow text-signal">Customer help</p>
-          <h1 className="mx-auto max-w-3xl display-title">How can we help?</h1>
+          <BlurText as="h1" className="mx-auto block max-w-3xl display-title" text="How can we help?" startDelay={0.05} />
           <p className="mx-auto mt-5 max-w-xl text-base text-pretty text-paper/80 lg:text-lg">
             Ask about a product, an order or a return. Send us a message, or
             reach us the way that suits you. We reply within 24 hours.
@@ -111,7 +132,7 @@ const Contact = () => {
               const Card = item.href ? "a" : "button";
               const extraProps = item.href
                 ? { href: item.href }
-                : { type: "button" };
+                : { type: "button", onClick: handleLiveChat };
               return (
                 <Card
                   key={item.title}
@@ -239,15 +260,6 @@ const Contact = () => {
                 Your details stay private · Reply within 24 hours
               </p>
             </div>
-            {sent && (
-              <p
-                role="status"
-                className="mt-4 rounded-lg bg-well px-4 py-3 text-sm text-muted"
-              >
-                Demo only: your message was not sent, but this is where the
-                confirmation would appear.
-              </p>
-            )}
           </form>
 
           <div className="flex flex-col gap-6">
@@ -266,7 +278,7 @@ const Contact = () => {
                 Ask about sizes, stock or delivery and get an answer straight
                 away.
               </p>
-              <button type="button" className="btn-signal mt-5 w-full">
+              <button type="button" onClick={handleLiveChat} className="btn-signal mt-5 w-full">
                 Start live chat
               </button>
             </div>
